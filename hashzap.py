@@ -35,17 +35,25 @@ def main(pagina):
 
     chat = ft.Column()
 
+    def enviar_mensagem_todos(mensagem):
+        texto_chat= ft.Text(mensagem)
+        chat.controls.append(texto_chat)
+
+        pagina.update()
+
+    pagina.pubsub.subscribe(enviar_mensagem_todos)
+
     def enviar_mensagem(evento):
         texto_mensagem = campo_mensagem.value
         nome_usuario = campo_nome_usuario.value
-        texto_chat= ft.Text(f"{nome_usuario}: {texto_mensagem}")
-        chat.controls.append(texto_chat)
+        mensagem= f"{nome_usuario}: {texto_mensagem}"
+        pagina.pubsub.send_all(mensagem)
         campo_mensagem.value=""
 
         pagina.update()
 
     
-    campo_mensagem = ft.TextField(label="Digite uma mensagem") #Adicionar on submit
+    campo_mensagem = ft.TextField(label="Digite uma mensagem",on_submit=enviar_mensagem) #Adicionar on submit
     botao_enviar_mensagem = ft.ElevatedButton("Enviar", on_click=enviar_mensagem)
 
     linha_mensagem = ft.Row([campo_mensagem, botao_enviar_mensagem])
@@ -55,8 +63,8 @@ def main(pagina):
         janela.open = False
         pagina.add(chat)
         pagina.add(linha_mensagem)
-        texto_entrou_chat= ft.Text(f"{campo_nome_usuario.value} entrou no chat")
-        chat.controls.append(texto_entrou_chat)
+        mensagem= f"{campo_nome_usuario.value} entrou no chat"
+        pagina.pubsub.send_all(mensagem)
 
         pagina.update()
 
